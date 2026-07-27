@@ -1,10 +1,10 @@
 {
-  "name": "Recherche Appart Aix",
-  "short_name": "Appart Aix",
+  "name": "Recherche de l'appartement de Crevette et Grimly",
+  "short_name": "Crevette & Grimly",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#12121f",
-  "theme_color": "#1a1a2e",
+  "background_color": "#fdf3e3",
+  "theme_color": "#fdf3e3",
   "icons": [
     { "src": "icon.png", "sizes": "180x180", "type": "image/png" }
   ]

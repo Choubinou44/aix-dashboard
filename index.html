@@ -4,24 +4,25 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Appart Aix">
-<meta name="theme-color" content="#1a1a2e">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Crevette & Grimly">
+<meta name="theme-color" content="#fdf3e3">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon.png">
-<title>Recherche Appart — Aix</title>
+<title>Recherche de l'appartement de Crevette et Grimly</title>
 <style>
   :root {
-    --bg: #12121f;
-    --card: #1e1e32;
-    --card2: #26263e;
-    --text: #f0f0f5;
-    --muted: #9a9ab0;
-    --accent: #7c6cf0;
-    --green: #34c77b;
-    --orange: #f5a623;
-    --red: #e85d5d;
-    --border: #33334d;
+    --bg: #fdf3e3;          /* sable clair */
+    --card: #fffdf8;
+    --card2: #f7e8d0;
+    --text: #3b2f2a;        /* brun chaud */
+    --muted: #a38b74;
+    --accent: #e2725b;      /* terracotta */
+    --lavande: #8e7cc3;
+    --green: #6da34d;       /* olivier */
+    --orange: #e8960c;
+    --red: #d94f4f;
+    --border: #efdcbe;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   body {
@@ -33,12 +34,18 @@
   header {
     padding: calc(14px + env(safe-area-inset-top)) 18px 10px;
     position: sticky; top: 0; z-index: 10;
-    background: rgba(18,18,31,0.92);
+    background: rgba(253,243,227,0.94);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border);
   }
-  header h1 { font-size: 20px; font-weight: 700; }
+  .hdr-top { display: flex; align-items: center; gap: 12px; }
+  .logo {
+    width: 48px; height: 48px; min-width: 48px; border-radius: 50%;
+    object-fit: cover; border: 2.5px solid var(--accent);
+    box-shadow: 0 2px 8px rgba(226,114,91,0.35);
+  }
+  header h1 { font-size: 16px; font-weight: 800; line-height: 1.25; color: var(--accent); }
   header .sub { font-size: 13px; color: var(--muted); margin-top: 2px; }
   .daytabs { display: flex; gap: 8px; margin-top: 12px; overflow-x: auto; }
   .daytab {
@@ -46,7 +53,7 @@
     background: var(--card); color: var(--muted); font-size: 13px; font-weight: 600;
     border: 1px solid var(--border); cursor: pointer; white-space: nowrap;
   }
-  .daytab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .daytab.active { background: var(--accent); color: #fff; border-color: var(--accent); box-shadow: 0 2px 8px rgba(226,114,91,0.4); }
   .daytab .dnum { display: block; font-size: 16px; }
   main { padding: 16px; }
   .section-title {
@@ -64,6 +71,7 @@
   .card {
     background: var(--card); border: 1px solid var(--border); border-radius: 16px;
     padding: 14px; margin-bottom: 10px;
+    box-shadow: 0 1px 5px rgba(59,47,42,0.07);
   }
   .card.done { opacity: 0.55; }
   .row { display: flex; align-items: flex-start; gap: 12px; }
@@ -77,7 +85,7 @@
   .grow { flex: 1; min-width: 0; }
   .time-badge {
     font-size: 13px; font-weight: 700; color: var(--accent);
-    background: rgba(124,108,240,0.15); padding: 3px 8px; border-radius: 8px;
+    background: rgba(226,114,91,0.14); padding: 3px 8px; border-radius: 8px;
     display: inline-block; margin-bottom: 4px;
   }
   .title { font-size: 16px; font-weight: 650; }
@@ -105,10 +113,10 @@
     border: none; cursor: pointer; white-space: nowrap;
   }
   .st-none { background: var(--card2); color: var(--muted); }
-  .st-attente { background: rgba(245,166,35,0.2); color: var(--orange); }
-  .st-refus { background: rgba(232,93,93,0.2); color: var(--red); }
-  .st-accepte { background: rgba(52,199,123,0.2); color: var(--green); }
-  .st-interesse { background: rgba(124,108,240,0.25); color: #b3a8ff; }
+  .st-attente { background: rgba(232,150,12,0.16); color: var(--orange); }
+  .st-refus { background: rgba(217,79,79,0.14); color: var(--red); }
+  .st-accepte { background: rgba(109,163,77,0.16); color: var(--green); }
+  .st-interesse { background: rgba(142,124,195,0.18); color: var(--lavande); }
   .add-inline {
     width: 100%; margin-top: 8px; padding: 8px; border-radius: 10px;
     background: var(--card2); border: 1px dashed var(--border);
@@ -119,11 +127,11 @@
     position: fixed; right: 18px; bottom: calc(80px + env(safe-area-inset-bottom));
     width: 56px; height: 56px; border-radius: 50%;
     background: var(--accent); color: #fff; font-size: 28px; border: none;
-    box-shadow: 0 4px 16px rgba(124,108,240,0.5); cursor: pointer; z-index: 20;
+    box-shadow: 0 4px 16px rgba(226,114,91,0.5); cursor: pointer; z-index: 20;
   }
   nav {
     position: fixed; bottom: 0; left: 0; right: 0; z-index: 10;
-    display: flex; background: rgba(18,18,31,0.95);
+    display: flex; background: rgba(253,243,227,0.96);
     backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
     border-top: 1px solid var(--border);
     padding-bottom: env(safe-area-inset-bottom);
@@ -170,8 +178,13 @@
 </head>
 <body>
 <header>
-  <h1 id="hdr-title">Missions du jour</h1>
-  <div class="sub" id="hdr-sub"></div>
+  <div class="hdr-top">
+    <img src="logo.png" alt="Crevette et Grimly" class="logo">
+    <div>
+      <h1>Recherche de l'appartement de Crevette et Grimly 🌞</h1>
+      <div class="sub" id="hdr-sub"></div>
+    </div>
+  </div>
   <div class="daytabs" id="daytabs"></div>
 </header>
 <main id="main"></main>
@@ -352,8 +365,7 @@ function agencyLinks(ag) {
 
 function renderDay() {
   const dayInfo = DAYS.find(d => d.key === currentDay);
-  $('hdr-title').textContent = 'Missions du jour';
-  $('hdr-sub').textContent = dayInfo.title;
+  $('hdr-sub').textContent = '📋 Missions · ' + dayInfo.title;
   const agencies = state.agencies.filter(a => a.day === currentDay).sort((a,b) => a.time.localeCompare(b.time));
   const visits = state.apartments.filter(a => a.day === currentDay).sort((a,b) => (a.time||'99').localeCompare(b.time||'99'));
 
@@ -402,10 +414,9 @@ function renderDay() {
 }
 
 function renderRecap() {
-  $('hdr-title').textContent = 'Tous les appartements';
   const apts = state.apartments;
   const n = k => apts.filter(a=>a.status===k).length;
-  $('hdr-sub').textContent = `${apts.length} apparts suivis`;
+  $('hdr-sub').textContent = `🏠 Tous les appartements · ${apts.length} suivis`;
   let html = `<div class="recap-stats">
     <div class="stat"><div class="n" style="color:var(--green)">${n('accepte')}</div><div class="l">Acceptés</div></div>
     <div class="stat"><div class="n" style="color:var(--orange)">${n('attente')}</div><div class="l">En attente</div></div>

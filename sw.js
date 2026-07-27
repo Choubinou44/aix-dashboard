@@ -1,5 +1,5 @@
-const CACHE = 'aix-dashboard-v2';
-const FILES = ['./', './index.html', './manifest.json', './icon.png'];
+const CACHE = 'aix-dashboard-v3';
+const FILES = ['./', './index.html', './manifest.json', './icon.png', './logo.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)));
@@ -7,7 +7,10 @@ self.addEventListener('install', e => {
 });
 
 self.addEventListener('activate', e => {
-  e.waitUntil(clients.claim());
+  e.waitUntil(Promise.all([
+    clients.claim(),
+    caches.keys().then(keys => Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))),
+  ]));
 });
 
 // réseau d'abord, cache en secours : l'app reste utilisable hors ligne

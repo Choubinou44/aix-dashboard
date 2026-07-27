@@ -231,13 +231,13 @@ const DAYS = [
 
 const SEED = {
   agencies: [
-    { id:'era', name:'Era Immobilier', address:"11 Rue de l'Opéra", day:'2026-07-28', time:'09:00',
+    { id:'era', name:'Era Immobilier', address:"11 Rue de l'Opéra", day:'2026-07-28', time:'10:30',
       note:'PRIORITÉ n°1 — 3 apparts à voir', phone:'', listUrl:'https://superimmo.com/agence/aix-en-provence-13100/era-immobilier-2-xn59g/location', done:false },
-    { id:'nova', name:'Nova Immobilier', address:'1 Ter Rue Manuel', day:'2026-07-28', time:'09:30',
+    { id:'nova', name:'Nova Immobilier', address:'1 Ter Rue Manuel', day:'2026-07-28', time:'11:30',
       note:'', phone:'', listUrl:'https://www.seloger.com/professionnels/agences-immobilieres/aix-en-provence-13/agency-278712.htm', done:false },
-    { id:'comtesse', name:'La Comtesse Immobilier', address:"47 Rue d'Italie", day:'2026-07-28', time:'10:00',
+    { id:'comtesse', name:'La Comtesse Immobilier', address:"47 Rue d'Italie", day:'2026-07-28', time:'13:30',
       note:'1 appart vu — réponse négative', phone:'04 42 53 51 62', listUrl:'https://www.lacomtesse.fr/agence/aix-en-provence', done:false },
-    { id:'drujon', name:'Drujon d\'Astros', address:'9 Rue Victor Leydet', day:'2026-07-28', time:'10:30',
+    { id:'drujon', name:'Drujon d\'Astros', address:'9 Rue Victor Leydet', day:'2026-07-28', time:'12:30',
       note:'Adresse confirmée : 9 rue Victor Leydet (près de la Rotonde)', phone:'', listUrl:'https://www.seloger.com/professionnels/agences-immobilieres/aix-en-provence-13100/agence-400320/', done:false },
     { id:'foncia', name:'Foncia Pays d\'Aix', address:'21 Av. Victor Hugo', day:'2026-07-28', time:'11:00',
       note:'5 apparts à voir — prévoir large', phone:'04 42 91 14 00', listUrl:'https://fr.foncia.com/location/aix-en-provence-13/appartement', done:false },
@@ -245,7 +245,7 @@ const SEED = {
       note:'', phone:'', listUrl:'https://www.sextiusmirabeau.com/annonces/289759_____/.html', done:false },
     { id:'sudest', name:'Agence du Sud Est', address:'54 Cours Sextius', day:'2026-07-28', time:'12:30',
       note:'Horaire à caler (ouvert 10h-12h / 14h-18h)', phone:'04 42 26 18 01', listUrl:'https://agsudest.com/fr/', done:false },
-    { id:'lamy', name:'Agence Lamy (Nexity)', address:'Domaine la Parade, 1600 Rte des Milles', day:'2026-07-29', time:'09:00',
+    { id:'lamy', name:'Agence Lamy (Nexity)', address:'Domaine la Parade, 1600 Rte des Milles', day:'2026-07-28', time:'09:00',
       note:'', phone:'04 42 93 47 53', listUrl:'https://www.nexity.fr/agence-immobiliere/aix-en-provence/aix-la-parade/COM103', done:false },
     { id:'valority', name:'Valority', address:'320 Rue Émilien Gautier', day:'2026-07-29', time:'10:00',
       note:'', phone:'04 42 29 62 62', listUrl:'https://www.valority.com/agence-valority-aix-en-provence/', done:false },
@@ -260,15 +260,12 @@ const SEED = {
   ],
   apartments: [
     // Era
-    { id:'e1', agencyId:'era', label:'T3 48 m² · 2 ch · étage 1/4 — 997 €', day:'', time:'', done:false, status:'attente',
-      note:'Réf LG5523-611-4 · Mail envoyé ×2 · 06 14 15 39 21 (loca, pas de réponse) · location@acaimmo.fr · BEAUCOUP DE DEMANDES', url:'https://superimmo.com/agence/aix-en-provence-13100/era-immobilier-2-xn59g/location', photo:'' },
+    { id:'e0', agencyId:'era', label:'1050€ 2 Pièces 1 chambre 66 m2', day:'2026-07-28', time:'09:00', done:false, status:'interesse',
+      note:'', url:'https://www.eraimmobilier.com/agence-immobiliere-aix-en-provence-1/annonces/565155', photo:'' },
     { id:'e2', agencyId:'era', label:'42 m² · DPE D — 966 €', day:'', time:'', done:false, status:'interesse',
       note:'BEAUCOUP DE DEMANDES', url:'https://superimmo.com/agence/aix-en-provence-13100/era-immobilier-2-xn59g/location', photo:'' },
     { id:'e3', agencyId:'era', label:'37 m² — 876 €', day:'', time:'', done:false, status:'interesse',
       note:'Un peu petit mais ok', url:'https://superimmo.com/agence/aix-en-provence-13100/era-immobilier-2-xn59g/location', photo:'' },
-    // La Comtesse
-    { id:'c1', agencyId:'comtesse', label:'T3 63 m² · 2 ch · étage 2/4 — 937 €', day:'', time:'', done:true, status:'refus',
-      note:'Réf B-E0PMC5 · Appel — négatif', url:'https://www.lacomtesse.fr/agence/aix-en-provence', photo:'' },
     // Figuière
     { id:'f1', agencyId:'figuiere', label:'40,3 m² · DPE C · meublé — 918 €', day:'', time:'', done:false, status:'none',
       note:'Non pour le moment', url:'https://www.sextiusmirabeau.com/annonces/289759_____/.html', photo:'' },
@@ -340,11 +337,11 @@ const STATUSES = [
 let state;
 function load() {
   try {
-    const raw = localStorage.getItem('aix-dashboard-v2');
+    const raw = localStorage.getItem('aix-dashboard-v3');
     state = raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(SEED));
   } catch(e) { state = JSON.parse(JSON.stringify(SEED)); }
 }
-function save() { localStorage.setItem('aix-dashboard-v2', JSON.stringify(state)); }
+function save() { localStorage.setItem('aix-dashboard-v3', JSON.stringify(state)); }
 
 function todayKey() {
   const now = new Date();

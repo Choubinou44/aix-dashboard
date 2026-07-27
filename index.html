@@ -84,15 +84,21 @@
   .card.done .title { text-decoration: line-through; }
   .addr { font-size: 13px; color: var(--muted); margin-top: 2px; }
   .addr a { color: var(--muted); text-decoration: underline; }
+  .aglinks { font-size: 13px; margin-top: 5px; display: flex; gap: 14px; flex-wrap: wrap; }
+  .aglinks a { color: var(--accent); text-decoration: none; font-weight: 600; }
   .note { font-size: 13px; color: var(--orange); margin-top: 4px; }
   .apts { margin-top: 10px; border-top: 1px solid var(--border); padding-top: 8px; }
-  .apt {
-    display: flex; align-items: center; gap: 10px; padding: 8px 0;
-  }
+  .apt { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
   .apt + .apt { border-top: 1px dashed var(--border); }
   .apt .check { width: 22px; height: 22px; min-width: 22px; font-size: 12px; margin-top: 0; }
+  .apt .thumb {
+    width: 46px; height: 46px; min-width: 46px; border-radius: 10px;
+    object-fit: cover; background: var(--card2);
+  }
   .apt .alabel { flex: 1; font-size: 14px; min-width: 0; }
-  .apt .alabel .asub { font-size: 12px; color: var(--muted); }
+  .apt .alabel .asub { font-size: 12px; color: var(--muted); margin-top: 1px; }
+  .apt .alabel .alink { font-size: 12px; margin-top: 2px; }
+  .apt .alabel .alink a { color: var(--accent); text-decoration: none; font-weight: 600; }
   .apt.done-apt .alabel { text-decoration: line-through; opacity: 0.6; }
   .status-btn {
     font-size: 12px; font-weight: 700; padding: 5px 10px; border-radius: 10px;
@@ -103,10 +109,6 @@
   .st-refus { background: rgba(232,93,93,0.2); color: var(--red); }
   .st-accepte { background: rgba(52,199,123,0.2); color: var(--green); }
   .st-interesse { background: rgba(124,108,240,0.25); color: #b3a8ff; }
-  .mini-btn {
-    background: none; border: none; color: var(--muted); font-size: 18px;
-    padding: 4px 8px; cursor: pointer;
-  }
   .add-inline {
     width: 100%; margin-top: 8px; padding: 8px; border-radius: 10px;
     background: var(--card2); border: 1px dashed var(--border);
@@ -132,7 +134,6 @@
   }
   nav button .ico { display: block; font-size: 22px; margin-bottom: 2px; }
   nav button.active { color: var(--accent); }
-  /* modal */
   .modal-bg {
     position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 50;
     display: none; align-items: flex-end;
@@ -193,32 +194,84 @@ const DAYS = [
 
 const SEED = {
   agencies: [
-    { id:'era', name:'Era Immobilier', address:"11 Rue de l'Opéra", day:'2026-07-28', time:'09:00', note:'PRIORITÉ n°1 — 3 apparts à voir', done:false },
-    { id:'nova', name:'Nova Immobilier', address:'1 Ter Rue Manuel', day:'2026-07-28', time:'09:30', note:'', done:false },
-    { id:'comtesse', name:'La Comtesse Immobilier', address:"47 Rue d'Italie", day:'2026-07-28', time:'10:00', note:'1 appart vu, réponse négative', done:false },
-    { id:'drujon', name:'Drujon d\'Astros / GCD', address:'Place de la Rotonde', day:'2026-07-28', time:'10:30', note:'Adresse à confirmer (9 rue Victor Leydet ?)', done:false },
-    { id:'foncia', name:'Foncia', address:'21 Av. Victor Hugo', day:'2026-07-28', time:'11:00', note:'5 apparts à voir — prévoir large', done:false },
-    { id:'figuiere', name:'Sextius Mirabeau / Figuière', address:'1-3 Av. Victor Hugo', day:'2026-07-28', time:'12:00', note:'', done:false },
-    { id:'lamy', name:'Agence Lamy', address:'Domaine la Parade, Route des Milles', day:'2026-07-29', time:'09:00', note:'', done:false },
-    { id:'valority', name:'Valority', address:'320 Rue Émilien Gautier', day:'2026-07-29', time:'10:00', note:'', done:false },
-    { id:'acd', name:'ACD Immobilier', address:'160 Av. de la République, Velaux', day:'2026-07-29', time:'11:00', note:'Visite déjà prévue', done:false },
+    { id:'era', name:'Era Immobilier', address:"11 Rue de l'Opéra", day:'2026-07-28', time:'09:00',
+      note:'PRIORITÉ n°1 — 3 apparts à voir', phone:'', listUrl:'https://superimmo.com/agence/aix-en-provence-13100/era-immobilier-2-xn59g/location', done:false },
+    { id:'nova', name:'Nova Immobilier', address:'1 Ter Rue Manuel', day:'2026-07-28', time:'09:30',
+      note:'', phone:'', listUrl:'https://www.seloger.com/professionnels/agences-immobilieres/aix-en-provence-13/agency-278712.htm', done:false },
+    { id:'comtesse', name:'La Comtesse Immobilier', address:"47 Rue d'Italie", day:'2026-07-28', time:'10:00',
+      note:'1 appart vu — réponse négative', phone:'04 42 53 51 62', listUrl:'https://www.lacomtesse.fr/agence/aix-en-provence', done:false },
+    { id:'drujon', name:'Drujon d\'Astros', address:'9 Rue Victor Leydet', day:'2026-07-28', time:'10:30',
+      note:'Adresse confirmée : 9 rue Victor Leydet (près de la Rotonde)', phone:'', listUrl:'https://www.seloger.com/professionnels/agences-immobilieres/aix-en-provence-13100/agence-400320/', done:false },
+    { id:'foncia', name:'Foncia Pays d\'Aix', address:'21 Av. Victor Hugo', day:'2026-07-28', time:'11:00',
+      note:'5 apparts à voir — prévoir large', phone:'04 42 91 14 00', listUrl:'https://fr.foncia.com/location/aix-en-provence-13/appartement', done:false },
+    { id:'figuiere', name:'Figuière Gestion Location', address:'1 Av. Victor Hugo', day:'2026-07-28', time:'12:00',
+      note:'', phone:'', listUrl:'https://www.sextiusmirabeau.com/annonces/289759_____/.html', done:false },
+    { id:'sudest', name:'Agence du Sud Est', address:'54 Cours Sextius', day:'2026-07-28', time:'12:30',
+      note:'Horaire à caler (ouvert 10h-12h / 14h-18h)', phone:'04 42 26 18 01', listUrl:'https://agsudest.com/fr/', done:false },
+    { id:'lamy', name:'Agence Lamy (Nexity)', address:'Domaine la Parade, 1600 Rte des Milles', day:'2026-07-29', time:'09:00',
+      note:'', phone:'04 42 93 47 53', listUrl:'https://www.nexity.fr/agence-immobiliere/aix-en-provence/aix-la-parade/COM103', done:false },
+    { id:'valority', name:'Valority', address:'320 Rue Émilien Gautier', day:'2026-07-29', time:'10:00',
+      note:'', phone:'04 42 29 62 62', listUrl:'https://www.valority.com/agence-valority-aix-en-provence/', done:false },
+    { id:'acd', name:'ACD Immobilier', address:'160 Av. de la République, Velaux', day:'2026-07-29', time:'11:00',
+      note:'Visite de l\'appart déjà calée jeudi 11h15', phone:'04 42 74 71 58', listUrl:'https://acd-immobilier-velaux.com/annonces/transaction/location.html', done:false },
+    { id:'orpi', name:'Orpi Avenir Immobilier', address:'37 Pl. Jean Moulin, Bouc-Bel-Air', day:'2026-07-29', time:'12:00',
+      note:'Horaire à caler (ouvert 9h-12h / 14h-18h)', phone:'04 42 22 00 62', listUrl:'https://www.orpi.com/avenirimmobilier/', done:false },
+    { id:'loger123', name:'123 Loger (abonnement)', address:'Plateforme en ligne', day:'', time:'',
+      note:'Créer un compte pour envoyer le profil', phone:'', listUrl:'https://www.123loger.com', done:false },
+    { id:'autres', name:'Autres / à trier', address:'', day:'', time:'',
+      note:'', phone:'', listUrl:'', done:false },
   ],
   apartments: [
-    { id:'a1', agencyId:'era', label:'Appart Era n°1', day:'', time:'', done:false, status:'interesse', note:'' },
-    { id:'a2', agencyId:'era', label:'Appart Era n°2', day:'', time:'', done:false, status:'interesse', note:'' },
-    { id:'a3', agencyId:'era', label:'Appart Era n°3', day:'', time:'', done:false, status:'interesse', note:'' },
-    { id:'a4', agencyId:'nova', label:'Appart Nova', day:'', time:'', done:false, status:'interesse', note:'' },
-    { id:'a5', agencyId:'comtesse', label:'Appart La Comtesse', day:'', time:'', done:true, status:'refus', note:'Déjà visité — réponse négative' },
-    { id:'a6', agencyId:'drujon', label:'Appart Drujon', day:'', time:'', done:false, status:'interesse', note:'' },
-    { id:'a7', agencyId:'foncia', label:'Appart Foncia n°1', day:'', time:'', done:false, status:'interesse', note:'' },
-    { id:'a8', agencyId:'foncia', label:'Appart Foncia n°2', day:'', time:'', done:false, status:'interesse', note:'' },
-    { id:'a9', agencyId:'foncia', label:'Appart Foncia n°3', day:'', time:'', done:false, status:'interesse', note:'' },
-    { id:'a10', agencyId:'foncia', label:'Appart Foncia n°4', day:'', time:'', done:false, status:'interesse', note:'' },
-    { id:'a11', agencyId:'foncia', label:'Appart Foncia n°5', day:'', time:'', done:false, status:'interesse', note:'' },
-    { id:'a12', agencyId:'figuiere', label:'Appart Figuière', day:'', time:'', done:false, status:'interesse', note:'' },
-    { id:'a13', agencyId:'lamy', label:'Appart Lamy', day:'', time:'', done:false, status:'interesse', note:'' },
-    { id:'a14', agencyId:'valority', label:'Appart Valority', day:'', time:'', done:false, status:'interesse', note:'' },
-    { id:'a15', agencyId:'acd', label:'Appart ACD (Velaux)', day:'2026-07-29', time:'11:00', done:false, status:'interesse', note:'Visite déjà prévue avec le RDV agence' },
+    // Era
+    { id:'e1', agencyId:'era', label:'T3 48 m² · 2 ch · étage 1/4 — 997 €', day:'', time:'', done:false, status:'attente',
+      note:'Réf LG5523-611-4 · Mail envoyé ×2 · 06 14 15 39 21 (loca, pas de réponse) · location@acaimmo.fr · BEAUCOUP DE DEMANDES', url:'https://superimmo.com/agence/aix-en-provence-13100/era-immobilier-2-xn59g/location', photo:'' },
+    { id:'e2', agencyId:'era', label:'42 m² · DPE D — 966 €', day:'', time:'', done:false, status:'interesse',
+      note:'BEAUCOUP DE DEMANDES', url:'https://superimmo.com/agence/aix-en-provence-13100/era-immobilier-2-xn59g/location', photo:'' },
+    { id:'e3', agencyId:'era', label:'37 m² — 876 €', day:'', time:'', done:false, status:'interesse',
+      note:'Un peu petit mais ok', url:'https://superimmo.com/agence/aix-en-provence-13100/era-immobilier-2-xn59g/location', photo:'' },
+    // La Comtesse
+    { id:'c1', agencyId:'comtesse', label:'T3 63 m² · 2 ch · étage 2/4 — 937 €', day:'', time:'', done:true, status:'refus',
+      note:'Réf B-E0PMC5 · Appel — négatif', url:'https://www.lacomtesse.fr/agence/aix-en-provence', photo:'' },
+    // Figuière
+    { id:'f1', agencyId:'figuiere', label:'40,3 m² · DPE C · meublé — 918 €', day:'', time:'', done:false, status:'none',
+      note:'Non pour le moment', url:'https://www.sextiusmirabeau.com/annonces/289759_____/.html', photo:'' },
+    // ACD
+    { id:'acd1', agencyId:'acd', label:'45 m² · DPE B · meublé — 925 €', day:'2026-07-30', time:'11:15', done:false, status:'interesse',
+      note:'RDV jeudi 30 à 11h15 · 29 rue de l\'École, Aix · dispo 3 août · 04 11 78 51 73', url:'https://acd-immobilier-velaux.com/annonces/transaction/location.html', photo:'' },
+    // Foncia
+    { id:'fo1', agencyId:'foncia', label:'57,4 m² · DPE D · non meublé — 1003 €', day:'', time:'', done:false, status:'attente',
+      note:'Réf 331697060 · Candidature soumise', url:'https://fr.foncia.com/location/aix-en-provence-13/appartement', photo:'' },
+    { id:'fo2', agencyId:'foncia', label:'T3 69,7 m² · 2 ch · 3e étage — 993 €', day:'', time:'', done:false, status:'attente',
+      note:'Réf 331698703 · Candidature soumise', url:'https://fr.foncia.com/location/aix-en-provence-13/appartement', photo:'' },
+    { id:'fo3', agencyId:'foncia', label:'61,3 m² · DPE D · non meublé — 935 €', day:'', time:'', done:false, status:'interesse',
+      note:'Réf 331661984 · À appeler lundi · 04 42 91 14 00 / 04 82 53 20 36', url:'https://fr.foncia.com/location/aix-en-provence-13/appartement', photo:'' },
+    { id:'fo4', agencyId:'foncia', label:'T2 39,5 m² · 1 ch · RDC — 977 €', day:'', time:'', done:false, status:'interesse',
+      note:'Postuler via Foncia (Océane)', url:'https://fr.foncia.com/location/aix-en-provence-13/appartement', photo:'' },
+    // 123 Loger
+    { id:'l1', agencyId:'loger123', label:'Beau T2 proche centre + terrasse 11 m²', day:'', time:'', done:false, status:'interesse',
+      note:'Réf 6863ABBF7DA0 · Créer compte pour envoyer le profil', url:'https://www.123loger.com', photo:'' },
+    { id:'l2', agencyId:'loger123', label:'51 m² · DPE C · non meublé — 950 €', day:'', time:'', done:false, status:'interesse',
+      note:'Créer compte pour envoyer le profil (2nd choix)', url:'https://www.123loger.com', photo:'' },
+    { id:'l3', agencyId:'loger123', label:'T2 47,26 m² — 897 €', day:'', time:'', done:false, status:'none',
+      note:'Lancelot pas fan', url:'https://www.123loger.com', photo:'' },
+    // 1 appart chez chaque autre agence
+    { id:'n1', agencyId:'nova', label:'Appart Nova — détails à compléter', day:'', time:'', done:false, status:'interesse', note:'', url:'', photo:'' },
+    { id:'d1', agencyId:'drujon', label:'Appart Drujon — détails à compléter', day:'', time:'', done:false, status:'interesse', note:'', url:'', photo:'' },
+    { id:'v1', agencyId:'valority', label:'Appart Valority — détails à compléter', day:'', time:'', done:false, status:'interesse', note:'', url:'', photo:'' },
+    { id:'la1', agencyId:'lamy', label:'Appart Lamy — détails à compléter', day:'', time:'', done:false, status:'interesse', note:'', url:'', photo:'' },
+    { id:'o1', agencyId:'orpi', label:'Appart Orpi (Bouc-Bel-Air) — détails à compléter', day:'', time:'', done:false, status:'interesse', note:'', url:'', photo:'' },
+    { id:'s1', agencyId:'sudest', label:'Appart Agence du Sud Est — détails à compléter', day:'', time:'', done:false, status:'interesse', note:'', url:'', photo:'' },
+    // Autres / à trier
+    { id:'au1', agencyId:'autres', label:'T2 rénové centre-ville — 1100 €', day:'', time:'', done:false, status:'attente',
+      note:'Mail envoyé · appel à passer lundi 06 64 08 53 62 · Océane pas fan', url:'', photo:'' },
+    { id:'au2', agencyId:'autres', label:'T2 45,7 m² · 1 ch · étage 3/4 — 963 €', day:'', time:'', done:false, status:'interesse',
+      note:'Envoyer mail / appeler (Océane)', url:'', photo:'' },
+    { id:'au3', agencyId:'autres', label:'T2 36 m² · 1 ch — 850 €', day:'', time:'', done:false, status:'interesse',
+      note:'Dès le 29/07 · bien mais un peu petit', url:'', photo:'' },
+    { id:'au4', agencyId:'autres', label:'Full rénové · DPE E — 913 €', day:'', time:'', done:false, status:'none',
+      note:'06 13 37 26 31 / 04 42 21 43 71 · grand mais bizarre, sol béton, douche dans un coin', url:'', photo:'' },
+    { id:'au5', agencyId:'autres', label:'T2 48,7 m² · 1 ch — 918 €', day:'', time:'', done:false, status:'interesse', note:'', url:'', photo:'' },
+    { id:'au6', agencyId:'autres', label:'52 m² — 996 €', day:'', time:'', done:false, status:'interesse', note:'', url:'', photo:'' },
   ],
 };
 
@@ -233,11 +286,11 @@ const STATUSES = [
 let state;
 function load() {
   try {
-    const raw = localStorage.getItem('aix-dashboard-v1');
+    const raw = localStorage.getItem('aix-dashboard-v2');
     state = raw ? JSON.parse(raw) : JSON.parse(JSON.stringify(SEED));
   } catch(e) { state = JSON.parse(JSON.stringify(SEED)); }
 }
-function save() { localStorage.setItem('aix-dashboard-v1', JSON.stringify(state)); }
+function save() { localStorage.setItem('aix-dashboard-v2', JSON.stringify(state)); }
 
 function todayKey() {
   const now = new Date();
@@ -272,7 +325,7 @@ function renderTabs() {
 }
 function setDay(k) { currentDay = k; render(); }
 
-function aptRow(apt, showAgency) {
+function aptRow(apt, showAgency, showPhoto) {
   const st = statusInfo(apt.status);
   const ag = agencyById(apt.agencyId);
   const sub = [
@@ -280,11 +333,21 @@ function aptRow(apt, showAgency) {
     apt.day ? '🗓 ' + fmtDay(apt.day) + (apt.time ? ' ' + apt.time : '') : '',
     apt.note || ''
   ].filter(Boolean).join(' · ');
+  const link = apt.url ? `<div class="alink"><a href="${escAttr(apt.url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">🔗 Voir l'annonce</a></div>` : '';
+  const thumb = (showPhoto && apt.photo) ? `<img class="thumb" src="${escAttr(apt.photo)}" alt="" onclick="editApt('${apt.id}')">` : '';
   return `<div class="apt ${apt.done?'done-apt':''}">
     <button class="check ${apt.done?'on':''}" onclick="toggleApt('${apt.id}')">${apt.done?'✓':''}</button>
-    <div class="alabel" onclick="editApt('${apt.id}')">${esc(apt.label)}${sub?`<div class="asub">${esc(sub)}</div>`:''}</div>
+    ${thumb}
+    <div class="alabel" onclick="editApt('${apt.id}')">${esc(apt.label)}${sub?`<div class="asub">${esc(sub)}</div>`:''}${link}</div>
     <button class="status-btn ${st.cls}" onclick="cycleStatus('${apt.id}')">${st.label}</button>
   </div>`;
+}
+
+function agencyLinks(ag) {
+  const parts = [];
+  if (ag.phone) parts.push(`<a href="tel:${ag.phone.replace(/\s/g,'')}">📞 ${esc(ag.phone)}</a>`);
+  if (ag.listUrl) parts.push(`<a href="${escAttr(ag.listUrl)}" target="_blank" rel="noopener">🌐 Voir les annonces</a>`);
+  return parts.length ? `<div class="aglinks">${parts.join('')}</div>` : '';
 }
 
 function renderDay() {
@@ -315,19 +378,19 @@ function renderDay() {
             <span class="time-badge">${ag.time}</span>
             <div class="title">${esc(ag.name)}</div>
             <div class="addr"><a href="${mapsLink(ag.address)}">📍 ${esc(ag.address)}</a></div>
+            ${agencyLinks(ag)}
             ${ag.note?`<div class="note">⚠️ ${esc(ag.note)}</div>`:''}
           </div>
         </div>
-        ${interesting.length?`<div class="apts">${interesting.map(a=>aptRow(a,false)).join('')}
-          <button class="add-inline" onclick="newApt('${ag.id}')">+ Ajouter un appart pour cette agence</button></div>`
-        :`<div class="apts"><button class="add-inline" onclick="newApt('${ag.id}')">+ Ajouter un appart pour cette agence</button></div>`}
+        <div class="apts">${interesting.map(a=>aptRow(a,false,false)).join('')}
+          <button class="add-inline" onclick="newApt('${ag.id}')">+ Ajouter un appart pour cette agence</button></div>
       </div>`;
     }
   }
 
   html += '<div class="section-title">🔑 Visites d\'appartements du jour</div>';
   if (visits.length) {
-    html += `<div class="card">${visits.map(a=>aptRow(a,true)).join('')}</div>`;
+    html += `<div class="card">${visits.map(a=>aptRow(a,true,true)).join('')}</div>`;
   } else {
     html += '<div class="empty">Aucune visite prévue ce jour.<br>Appuie sur + pour ajouter un RDV.</div>';
   }
@@ -352,19 +415,21 @@ function renderRecap() {
   for (const ag of state.agencies) {
     const list = apts.filter(a => a.agencyId === ag.id);
     if (!list.length) continue;
-    html += `<div class="card"><div class="title" style="margin-bottom:4px">${esc(ag.name)}</div>
-      <div class="apts" style="border-top:none;padding-top:0">${list.map(a=>aptRow(a,false)).join('')}
+    html += `<div class="card"><div class="title" style="margin-bottom:2px">${esc(ag.name)}</div>
+      ${agencyLinks(ag)}
+      <div class="apts">${list.map(a=>aptRow(a,false,true)).join('')}
       <button class="add-inline" onclick="newApt('${ag.id}')">+ Ajouter un appart</button></div></div>`;
   }
   const orphans = apts.filter(a => !agencyById(a.agencyId));
   if (orphans.length) {
-    html += `<div class="card"><div class="title" style="margin-bottom:4px">Autres</div>
-      <div class="apts" style="border-top:none;padding-top:0">${orphans.map(a=>aptRow(a,true)).join('')}</div></div>`;
+    html += `<div class="card"><div class="title" style="margin-bottom:4px">Sans agence</div>
+      <div class="apts" style="border-top:none;padding-top:0">${orphans.map(a=>aptRow(a,true,true)).join('')}</div></div>`;
   }
   $('main').innerHTML = html;
 }
 
 function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function escAttr(s) { return esc(s); }
 
 function toggleAgency(id) { const a = agencyById(id); a.done = !a.done; save(); render(); }
 function toggleApt(id) { const a = state.apartments.find(x=>x.id===id); a.done = !a.done; save(); render(); }
@@ -382,20 +447,24 @@ $('modal-bg').addEventListener('click', e => { if (e.target === $('modal-bg')) c
 
 function aptForm(apt, agencyId) {
   const isNew = !apt;
-  apt = apt || { label:'', agencyId: agencyId || state.agencies[0].id, day: currentDay, time:'', note:'', status:'interesse', done:false };
+  apt = apt || { label:'', agencyId: agencyId || state.agencies[0].id, day: currentDay, time:'', note:'', status:'interesse', done:false, url:'', photo:'' };
   return `<h2>${isNew?'Nouveau RDV / appart':'Modifier l\'appart'}</h2>
     <label>Nom / description</label>
-    <input id="f-label" value="${esc(apt.label)}" placeholder="Ex : T2 Rue d'Italie, 750€">
+    <input id="f-label" value="${escAttr(apt.label)}" placeholder="Ex : T2 Rue d'Italie, 750€">
     <label>Agence</label>
     <select id="f-agency">${state.agencies.map(a=>`<option value="${a.id}" ${a.id===apt.agencyId?'selected':''}>${esc(a.name)}</option>`).join('')}</select>
     <label>Jour de la visite</label>
     <select id="f-day"><option value="">Pas encore de RDV</option>${DAYS.map(d=>`<option value="${d.key}" ${d.key===apt.day?'selected':''}>${d.title}</option>`).join('')}</select>
     <label>Heure</label>
-    <input id="f-time" type="time" value="${esc(apt.time)}">
+    <input id="f-time" type="time" value="${escAttr(apt.time)}">
     <label>Statut du dossier</label>
     <select id="f-status">${STATUSES.map(s=>`<option value="${s.key}" ${s.key===apt.status?'selected':''}>${s.label}</option>`).join('')}</select>
+    <label>Lien de l'annonce (URL)</label>
+    <input id="f-url" type="url" value="${escAttr(apt.url||'')}" placeholder="https://…">
+    <label>Photo (URL de l'image — appui long sur la photo de l'annonce → Copier l'adresse)</label>
+    <input id="f-photo" type="url" value="${escAttr(apt.photo||'')}" placeholder="https://….jpg">
     <label>Note</label>
-    <textarea id="f-note" rows="2" placeholder="Adresse, prix, remarques…">${esc(apt.note)}</textarea>
+    <textarea id="f-note" rows="2" placeholder="Adresse, prix, réf, contact…">${esc(apt.note)}</textarea>
     <div class="btns">
       ${isNew?'':`<button class="btn-del" onclick="deleteApt('${apt.id}')">Suppr.</button>`}
       <button class="btn-cancel" onclick="closeModal()">Annuler</button>
@@ -411,6 +480,8 @@ function saveApt(id) {
     day: $('f-day').value,
     time: $('f-time').value,
     status: $('f-status').value,
+    url: $('f-url').value.trim(),
+    photo: $('f-photo').value.trim(),
     note: $('f-note').value.trim(),
   };
   if (id) {

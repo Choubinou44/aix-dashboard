@@ -1,4 +1,4 @@
-const CACHE = 'aix-dashboard-v1';
+const CACHE = 'aix-dashboard-v2';
 const FILES = ['./', './index.html', './manifest.json', './icon.png'];
 
 self.addEventListener('install', e => {

@@ -88,7 +88,8 @@
   .time-badge {
     font-size: 13px; font-weight: 700; color: var(--accent);
     background: rgba(226,114,91,0.14); padding: 3px 8px; border-radius: 8px;
-    display: inline-block; margin-bottom: 4px;
+    display: inline-block; margin-bottom: 4px; cursor: pointer;
+    border: 1px dashed rgba(226,114,91,0.5);
   }
   .title { font-size: 16px; font-weight: 650; }
   .card.done .title { text-decoration: line-through; }
@@ -477,7 +478,7 @@ function renderDay() {
         <div class="row">
           <button class="check ${ag.done?'on':''}" onclick="toggleAgency('${ag.id}')">${ag.done?'✓':''}</button>
           <div class="grow">
-            <span class="time-badge">${ag.time}</span>
+            <span class="time-badge" onclick="editAgencyTime('${ag.id}')">${ag.time} ✏️</span>
             <div class="title">${esc(ag.name)}</div>
             <div class="addr"><a href="${mapsLink(ag.address)}">📍 ${esc(ag.address)}</a></div>
             ${agencyLinks(ag)}
@@ -579,6 +580,27 @@ function aptForm(apt, agencyId) {
       <button class="btn-save" onclick="saveApt('${isNew?'':apt.id}')">Enregistrer</button>
     </div>`;
 }
+function editAgencyTime(id) {
+  const ag = agencyById(id);
+  openModal(`<h2>RDV — ${esc(ag.name)}</h2>
+    <label>Jour du passage en agence</label>
+    <select id="fa-day">${DAYS.map(d=>`<option value="${d.key}" ${d.key===ag.day?'selected':''}>${d.title}</option>`).join('')}</select>
+    <label>Heure</label>
+    <input id="fa-time" type="time" value="${escAttr(ag.time)}">
+    <div class="btns">
+      <button class="btn-cancel" onclick="closeModal()">Annuler</button>
+      <button class="btn-save" onclick="saveAgencyTime('${id}')">Enregistrer</button>
+    </div>`);
+}
+function saveAgencyTime(id) {
+  const ag = agencyById(id);
+  ag.day = $('fa-day').value;
+  ag.time = $('fa-time').value || ag.time;
+  save(); closeModal();
+  currentDay = ag.day; // suit l'agence sur son nouveau jour
+  render();
+}
+
 function newApt(agencyId) { openModal(aptForm(null, agencyId)); }
 function editApt(id) { openModal(aptForm(state.apartments.find(a=>a.id===id))); }
 function saveApt(id) {

@@ -10,6 +10,8 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon.png">
 <title>Recherche de l'appartement de Crevette et Grimly</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
   :root {
     --bg: #fdf3e3;          /* sable clair */
@@ -167,6 +169,26 @@
   .btn-cancel { background: var(--card2); color: var(--muted); }
   .btn-save { background: var(--accent); color: #fff; }
   .btn-del { background: rgba(232,93,93,0.2); color: var(--red); }
+  #map {
+    height: calc(100vh - 320px);
+    min-height: 320px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 5px rgba(59,47,42,0.07);
+  }
+  .map-legend {
+    display: flex; gap: 14px; flex-wrap: wrap; align-items: center;
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 10px 14px; margin-top: 10px; font-size: 13px; color: var(--muted);
+  }
+  .map-legend .dot {
+    display: inline-block; width: 12px; height: 12px; border-radius: 50%;
+    margin-right: 5px; vertical-align: -1px; border: 2px solid #fff;
+    box-shadow: 0 0 2px rgba(0,0,0,0.4);
+  }
+  .leaflet-popup-content { font-family: inherit; font-size: 13px; margin: 10px 12px; }
+  .leaflet-popup-content b { font-size: 14px; }
+  .leaflet-popup-content a { color: var(--accent); font-weight: 600; }
   .recap-stats { display: flex; gap: 8px; margin-bottom: 14px; }
   .stat {
     flex: 1; background: var(--card); border: 1px solid var(--border);
@@ -191,6 +213,7 @@
 <button class="fab" id="fab" title="Ajouter un RDV">+</button>
 <nav>
   <button id="nav-today" class="active"><span class="ico">📋</span>Missions</button>
+  <button id="nav-map"><span class="ico">🗺️</span>Carte</button>
   <button id="nav-recap"><span class="ico">🏠</span>Apparts</button>
 </nav>
 
@@ -288,6 +311,23 @@ const SEED = {
   ],
 };
 
+// coordonnées GPS des agences (géocodées une fois pour toutes)
+const COORDS = {
+  era:      [43.52726, 5.45354],
+  nova:     [43.52877, 5.45155],
+  comtesse: [43.52564, 5.45364],
+  drujon:   [43.52691, 5.44548],
+  foncia:   [43.52452, 5.44672],
+  figuiere: [43.52568, 5.44648],
+  sudest:   [43.52964, 5.44396],
+  lamy:     [43.50985, 5.43401],
+  valority: [43.48078, 5.39240],
+  acd:      [43.52292, 5.25610],
+  orpi:     [43.45131, 5.41244],
+};
+const HOME = { coords: [43.51349, 5.43888], label: 'Chez nous', address: '25 Rue Lt-Col Philippe Erulin' };
+const DAY_COLORS = { '2026-07-28': '#e2725b', '2026-07-29': '#6da34d', '': '#a38b74' };
+
 const STATUSES = [
   { key:'interesse', label:'Intéressé', cls:'st-interesse' },
   { key:'attente', label:'⏳ Attente', cls:'st-attente' },
@@ -324,14 +364,63 @@ function mapsLink(addr) {
   return `https://maps.apple.com/?q=${encodeURIComponent(q)}`;
 }
 
+let map = null;
 function render() {
+  map = null; // le conteneur de carte est détruit à chaque changement de vue
   renderTabs();
-  if (view === 'today') renderDay(); else renderRecap();
+  if (view === 'today') renderDay();
+  else if (view === 'map') renderMap();
+  else renderRecap();
+}
+
+function renderMap() {
+  $('hdr-sub').textContent = '🗺️ Carte des agences';
+  $('main').innerHTML = `<div id="map"></div>
+    <div class="map-legend">
+      <span><span class="dot" style="background:#e2725b"></span>Mardi 28</span>
+      <span><span class="dot" style="background:#6da34d"></span>Mercredi 29</span>
+      <span>🏠 Chez nous</span>
+      <span>✓ = agence faite</span>
+    </div>`;
+  if (typeof L === 'undefined') {
+    $('main').innerHTML = '<div class="empty">La carte nécessite une connexion internet pour se charger la première fois.</div>';
+    return;
+  }
+  map = L.map('map');
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+    attribution: '© OpenStreetMap'
+  }).addTo(map);
+
+  const pts = [];
+  for (const ag of state.agencies) {
+    const c = COORDS[ag.id];
+    if (!c) continue;
+    pts.push(c);
+    const color = DAY_COLORS[ag.day] || '#a38b74';
+    const nApts = state.apartments.filter(a => a.agencyId === ag.id && a.status !== 'none').length;
+    const popup = `<b>${esc(ag.name)}${ag.done ? ' ✓' : ''}</b><br>
+      ${ag.time ? '🕐 ' + fmtDay(ag.day) + ' à ' + ag.time + '<br>' : ''}
+      📍 ${esc(ag.address)}<br>
+      ${nApts ? '🏠 ' + nApts + ' appart' + (nApts>1?'s':'') + ' suivi' + (nApts>1?'s':'') + '<br>' : ''}
+      ${ag.phone ? `<a href="tel:${ag.phone.replace(/\s/g,'')}">📞 Appeler</a> · ` : ''}<a href="${mapsLink(ag.address)}">🧭 Itinéraire</a>`;
+    L.circleMarker(c, {
+      radius: 11, fillColor: color, fillOpacity: ag.done ? 0.45 : 1,
+      color: '#fff', weight: 2.5,
+    }).addTo(map).bindPopup(popup);
+  }
+  pts.push(HOME.coords);
+  L.marker(HOME.coords, {
+    icon: L.divIcon({ html: '<div style="font-size:26px;line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,.4))">🏠</div>', className: '', iconSize: [26,26], iconAnchor: [13,13] })
+  }).addTo(map).bindPopup(`<b>${HOME.label}</b><br>📍 ${HOME.address}`);
+
+  map.fitBounds(L.latLngBounds(pts).pad(0.08));
 }
 
 function renderTabs() {
   const tabs = $('daytabs');
   if (view !== 'today') { tabs.style.display = 'none'; return; }
+  tabs.style.removeProperty('display');
   tabs.style.display = 'flex';
   tabs.innerHTML = DAYS.map(d =>
     `<div class="daytab ${d.key===currentDay?'active':''}" onclick="setDay('${d.key}')">${d.label}<span class="dnum">${d.num}</span></div>`
@@ -516,8 +605,15 @@ function deleteApt(id) {
 }
 
 $('fab').addEventListener('click', () => newApt());
-$('nav-today').addEventListener('click', () => { view='today'; $('nav-today').classList.add('active'); $('nav-recap').classList.remove('active'); render(); });
-$('nav-recap').addEventListener('click', () => { view='recap'; $('nav-recap').classList.add('active'); $('nav-today').classList.remove('active'); render(); });
+const NAV = { 'nav-today': 'today', 'nav-map': 'map', 'nav-recap': 'recap' };
+for (const [btnId, v] of Object.entries(NAV)) {
+  $(btnId).addEventListener('click', () => {
+    view = v;
+    for (const id of Object.keys(NAV)) $(id).classList.toggle('active', id === btnId);
+    $('fab').style.display = (v === 'map') ? 'none' : '';
+    render();
+  });
+}
 
 load();
 render();

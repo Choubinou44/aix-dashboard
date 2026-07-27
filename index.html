@@ -320,7 +320,8 @@ function statusInfo(key) { return STATUSES.find(s => s.key === key) || STATUSES[
 function agencyById(id) { return state.agencies.find(a => a.id === id); }
 function fmtDay(key) { const d = DAYS.find(x => x.key === key); return d ? d.label + ' ' + d.num : key; }
 function mapsLink(addr) {
-  return `https://maps.apple.com/?q=${encodeURIComponent(addr + ', Aix-en-Provence')}`;
+  const q = /Velaux|Bouc-Bel-Air/i.test(addr) ? addr : addr + ', Aix-en-Provence';
+  return `https://maps.apple.com/?q=${encodeURIComponent(q)}`;
 }
 
 function render() {

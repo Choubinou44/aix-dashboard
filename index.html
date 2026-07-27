@@ -452,7 +452,14 @@ function cycleStatus(id) {
 }
 
 // ---- modal ----
-function openModal(html) { $('modal').innerHTML = html; $('modal-bg').classList.add('open'); }
+function openModal(html) {
+  const m = $('modal');
+  m.innerHTML = html;
+  $('modal-bg').classList.add('open');
+  // bloque le "clic fantôme" iOS qui traverse vers le formulaire à l'ouverture
+  m.style.pointerEvents = 'none';
+  setTimeout(() => { m.style.pointerEvents = ''; }, 400);
+}
 function closeModal() { $('modal-bg').classList.remove('open'); }
 $('modal-bg').addEventListener('click', e => { if (e.target === $('modal-bg')) closeModal(); });
 
